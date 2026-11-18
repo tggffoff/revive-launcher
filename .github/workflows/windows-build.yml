@@ -21,9 +21,12 @@ jobs:
           flutter-version: '3.50.0'
           channel: 'stable'
 
-      - name: Install dependencies
+      - name: Clean Flutter cache & get dependencies
         working-directory: atlas_link_flutter
-        run: flutter pub get
+        run: |
+          flutter clean
+          flutter pub cache clean -f
+          flutter pub get
 
       - name: Compile Revive
         working-directory: atlas_link_flutter
