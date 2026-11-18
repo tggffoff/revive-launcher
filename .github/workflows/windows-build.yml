@@ -1,0 +1,32 @@
+name: Revive Windows Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        working-directory: atlas_link_flutter
+        run: flutter pub get
+
+      - name: Build Windows
+        working-directory: atlas_link_flutter
+        run: flutter build windows --release
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Revive-Windows
+          path: atlas_link_flutter/build/windows/x64/runner/Release/
