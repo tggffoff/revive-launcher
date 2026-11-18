@@ -158,7 +158,7 @@ class MeshStatus {
       selfTailscaleIps.any((ip) => ip.startsWith('100.'));
 
   /// Everyone (self first).
-  List<MeshPeer> get all => <MeshPeer>[?self, ...others];
+  List<MeshPeer> get all => <MeshPeer>[self, ...others];
 
   int onlineCount() => all.where((p) => p.online).length;
 }
