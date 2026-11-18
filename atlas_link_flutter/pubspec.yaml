@@ -20,7 +20,7 @@ dependencies:
   win32: ^5.10.1
   version: ^3.0.2
   path: ^1.9.0
-  font_awesome_flutter: ^10.8.0
+  font_awesome_flutter: ^10.7.0
   media_kit: ^1.2.6
   media_kit_video: ^2.0.1
   media_kit_libs_video: ^1.0.7
