@@ -1,4 +1,4 @@
-Name: Revive Windows Build
+name: Revive Windows Build
 
 on:
   workflow_dispatch:
