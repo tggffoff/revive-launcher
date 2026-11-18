@@ -1,32 +1,42 @@
+
 name: Revive Windows Build
 
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build:
+    name: Build Revive for Windows
     runs-on: windows-latest
+
     steps:
-      - name: Checkout
+      - name: Download Revive source
         uses: actions/checkout@v4
 
-      - name: Setup Flutter
+      - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+
+      - name: Upgrade Font Awesome
+        working-directory: atlas_link_flutter
+        run: flutter pub upgrade font_awesome_flutter
 
       - name: Install dependencies
         working-directory: atlas_link_flutter
         run: flutter pub get
 
-      - name: Build Windows
+      - name: Compile Revive
         working-directory: atlas_link_flutter
         run: flutter build windows --release
 
-      - name: Upload build
+      - name: Upload Revive Windows build
         uses: actions/upload-artifact@v4
         with:
           name: Revive-Windows
           path: atlas_link_flutter/build/windows/x64/runner/Release/
+          if-no-files-found: error
+          
