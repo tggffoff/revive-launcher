@@ -1,5 +1,4 @@
-
-name: Revive Windows Build
+Name: Revive Windows Build
 
 on:
   workflow_dispatch:
@@ -19,7 +18,8 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: '3.22.2'
+          channel: 'stable'
 
       - name: Upgrade Font Awesome
         working-directory: atlas_link_flutter
