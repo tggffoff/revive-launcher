@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="1920" height="1080" alt="ATLAS Banner" src="https://github.com/user-attachments/assets/23883b15-d35d-427b-93ac-d50e3aa2ea72" />
+  <img width="1920" height="1080" alt="" src="https://github.com/user-attachments/assets/23883b15-d35d-427b-93ac-d50e3aa2ea72" />
 </p>
 
 # Revive
