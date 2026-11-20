@@ -10067,7 +10067,7 @@ class _LauncherScreenState extends State<LauncherScreen>
                         ),
                         const SizedBox(height: 18),
                         Text(
-                          'ATLAS is created and maintained by cipher and ralz. This launcher and project experience are shaped by the team below.',
+                          'Revive is an independent community launcher based on ATLAS Link. It is maintained as a separate project, with credit to the original creators and contributors.',
                           style: TextStyle(
                             color: _onSurface(dialogContext, 0.82),
                             fontSize: 15,
@@ -10086,7 +10086,7 @@ class _LauncherScreenState extends State<LauncherScreen>
                                 FontAwesomeIcons.github,
                                 size: 16,
                               ),
-                              label: 'ATLAS Repo',
+                              label: 'Original source',
                             ),
                             aboutActionButton(
                               onPressed: () =>
@@ -15761,12 +15761,9 @@ foreach (\$process in Get-CimInstance Win32_Process -Filter \$candidateFilter) {
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   )
-                : Icon(
-                    discord && !isFull
-                        ? FontAwesomeIcons.discord
-                        : Icons.power_settings_new_rounded,
-                    size: 18,
-                  ),
+                : discord && !isFull
+                ? const FaIcon(FontAwesomeIcons.discord, size: 18)
+                : const Icon(Icons.power_settings_new_rounded, size: 18),
             label: Text(
               busy
                   ? 'Connecting…'
@@ -35697,7 +35694,7 @@ foreach ($app in $appPaths) {
                           children: [
                             Row(
                               children: [
-                                const Icon(FontAwesomeIcons.discord, size: 18),
+                                const FaIcon(FontAwesomeIcons.discord, size: 18),
                                 const SizedBox(width: 9),
                                 const Expanded(child: Text('Revive account', style: TextStyle(fontWeight: FontWeight.w700))),
                                 if (_reviveAuthUser != null)
@@ -35728,7 +35725,7 @@ foreach ($app in $appPaths) {
                                 alignment: Alignment.centerLeft,
                                 child: FilledButton.icon(
                                   onPressed: _reviveAuthBusy ? null : _signInToReviveWithDiscord,
-                                  icon: _reviveAuthBusy ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(FontAwesomeIcons.discord, size: 17),
+                                  icon: _reviveAuthBusy ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const FaIcon(FontAwesomeIcons.discord, size: 17),
                                   label: Text(_reviveAuthBusy ? 'Connecting…' : 'Continue with Discord'),
                                 ),
                               ),

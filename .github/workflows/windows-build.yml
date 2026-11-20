@@ -6,36 +6,40 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build Revive for Windows
     runs-on: windows-latest
-
     steps:
-      - name: Download Revive source
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Install Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.50.0'
-          channel: 'stable'
+          channel: stable
+          cache: true
 
-      - name: Clean Flutter cache & get dependencies
+      # pubspec.lock currently pins font_awesome_flutter 10.12.0,
+      # which is incompatible with the Dart SDK used by the Windows runner.
+      - name: Upgrade Font Awesome dependency
         working-directory: atlas_link_flutter
-        run: |
-          flutter clean
-          flutter pub cache clean -f
-          flutter pub get
+        run: flutter pub upgrade font_awesome_flutter
 
-      - name: Compile Revive
+      - name: Install dependencies
+        working-directory: atlas_link_flutter
+        run: flutter pub get
+
+      - name: Build Windows release
         working-directory: atlas_link_flutter
         run: flutter build windows --release
 
-      - name: Upload Revive Windows build
+      - name: Upload Windows build
         uses: actions/upload-artifact@v4
         with:
           name: Revive-Windows
           path: atlas_link_flutter/build/windows/x64/runner/Release/
           if-no-files-found: error
-          

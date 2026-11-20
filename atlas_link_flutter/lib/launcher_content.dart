@@ -84,31 +84,31 @@ class LauncherContentConfig {
         heroRotationSeconds: 5,
         slides: <LauncherContentSlide>[
           LauncherContentSlide(
-            image: 'assets/images/atlas_banner_v2.png',
-            category: 'LAUNCHER',
-            title: 'ATLAS',
+            image: 'assets/images/revive_wordmark.png',
+            category: 'REVIVE LAUNCHER',
+            title: 'REVIVE',
             description:
-                'ATLAS is the new era of OGFN. Built with a clean UI and user experience. Enjoy your stay.',
-            buttonLabel: 'Open ATLAS Link GitHub',
+                'Your builds, tools and launcher experience in one place. Revive is an independent project built on the foundations of ATLAS Link.',
+            buttonLabel: 'View Revive source',
             buttonUrl: repositoryUrl,
-            imageFit: BoxFit.cover,
+            imageFit: BoxFit.contain,
           ),
           LauncherContentSlide(
             image: 'assets/images/discord.webp',
             category: 'COMMUNITY',
-            title: 'ATLAS Discord',
+            title: 'Revive community',
             description:
-                'Join the ATLAS discord for more resources, news and updates!',
-            buttonLabel: 'Join ATLAS Discord',
+                'Join the Revive community for support, news and updates!',
+            buttonLabel: 'Join Revive Discord',
             buttonUrl: discordInviteUrl,
             imageFit: BoxFit.cover,
           ),
           LauncherContentSlide(
             image: 'assets/images/atlas_apps.png',
             category: 'TUTORIAL',
-            title: 'ATLAS Tutorial',
+            title: 'Launcher Tutorial',
             description:
-                'Watch this YouTube tutorial to learn how to use ATLAS, made by Mineluke (@mineluke)!',
+                'Watch this community tutorial to learn more about using a Fortnite launcher, made by Mineluke (@mineluke)!',
             buttonLabel: 'Watch Video',
             buttonUrl: 'https://www.youtube.com/watch?v=C3pRAjzELzI',
             imageFit: BoxFit.contain,
@@ -240,7 +240,7 @@ class LauncherContentSlide {
     return LauncherContentSlide(
       image: _asString(json['image'], ''),
       category: _asString(json['category'], ''),
-      title: _asString(json['title'], 'ATLAS'),
+      title: _asString(json['title'], 'Revive'),
       description: _asString(json['description'], ''),
       buttonLabel: _asString(json['buttonLabel'], ''),
       buttonUrl: _asString(json['buttonUrl'], ''),
@@ -275,7 +275,7 @@ class LauncherContentCard {
 
   factory LauncherContentCard.fromJson(Map<String, dynamic> json) {
     return LauncherContentCard(
-      title: _asString(json['title'], 'ATLAS'),
+      title: _asString(json['title'], 'Revive'),
       description: _asString(json['description'], ''),
       buttonLabel: _asString(json['buttonLabel'], ''),
       buttonUrl: _asString(json['buttonUrl'], ''),
