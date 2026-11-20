@@ -3,15 +3,14 @@ name: Revive Windows Build
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
 
 permissions:
   contents: read
 
 jobs:
   build:
-    name: Build Revive for Windows
+    name: Build Revive for Windows x64
     runs-on: windows-latest
     steps:
       - name: Checkout source
@@ -23,13 +22,11 @@ jobs:
           channel: stable
           cache: true
 
-      # pubspec.lock currently pins font_awesome_flutter 10.12.0,
-      # which is incompatible with the Dart SDK used by the Windows runner.
-      - name: Upgrade Font Awesome dependency
+      - name: Update incompatible Font Awesome lockfile entry
         working-directory: atlas_link_flutter
         run: flutter pub upgrade font_awesome_flutter
 
-      - name: Install dependencies
+      - name: Resolve dependencies
         working-directory: atlas_link_flutter
         run: flutter pub get
 
@@ -37,9 +34,23 @@ jobs:
         working-directory: atlas_link_flutter
         run: flutter build windows --release
 
-      - name: Upload Windows build
+      - name: Verify complete Flutter release bundle
+        shell: pwsh
+        run: |
+          $release = "atlas_link_flutter/build/windows/x64/runner/Release"
+          if (!(Test-Path $release)) { throw "Release directory missing: $release" }
+          $exe = Get-ChildItem $release -Filter "*.exe" -File | Select-Object -First 1
+          if (!$exe) { throw "No application EXE found in $release" }
+          if (!(Test-Path "$release/data/app.so")) { throw "Missing data/app.so" }
+          if (!(Test-Path "$release/data/flutter_assets")) { throw "Missing data/flutter_assets" }
+          if (!(Test-Path "$release/flutter_windows.dll")) { throw "Missing flutter_windows.dll" }
+          Write-Host "Verified release bundle: $($exe.Name)"
+          Get-ChildItem $release -Force | Format-Table Name, Length
+
+      - name: Upload complete Windows release folder
         uses: actions/upload-artifact@v4
         with:
-          name: Revive-Windows
+          name: Revive-Windows-Release-Full
           path: atlas_link_flutter/build/windows/x64/runner/Release/
           if-no-files-found: error
+          retention-days: 14
