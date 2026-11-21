@@ -1,0 +1,93 @@
+name: Revive Setup (installateur)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag de Release ou deposer Revive-Setup.exe (ex: v2.0.7). Laisse vide pour ne pas publier."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  setup:
+    name: Build Revive-Setup.exe
+    runs-on: windows-latest
+    env:
+      TAG: ${{ inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Update incompatible Font Awesome lockfile entry
+        working-directory: atlas_link_flutter
+        run: flutter pub upgrade font_awesome_flutter
+
+      - name: Resolve dependencies
+        working-directory: atlas_link_flutter
+        run: flutter pub get
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          $iscc = Get-ChildItem -Path "${env:ProgramFiles(x86)}\Inno Setup*", "$env:ProgramFiles\Inno Setup*" -Filter ISCC.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $iscc) { throw "ISCC.exe introuvable apres l'installation d'Inno Setup." }
+          Write-Host "ISCC: $($iscc.FullName)"
+          $iscc.Directory.FullName >> $env:GITHUB_PATH
+
+      - name: Rebrand ATLAS Link -> Revive (installateur, nom de l'exe, titre de fenetre)
+        shell: pwsh
+        run: |
+          function Patch([string]$path, [string]$old, [string]$new) {
+            $text = [System.IO.File]::ReadAllText($path)
+            if (-not $text.Contains($old)) { throw "Texte introuvable dans ${path} : $old" }
+            [System.IO.File]::WriteAllText($path, $text.Replace($old, $new), (New-Object System.Text.UTF8Encoding($false)))
+          }
+
+          $iss = "installer/ATLAS-Link.iss"
+          Patch $iss 'cipherfps/ATLAS-Link' 'tggffoff/revive-launcher'
+          Patch $iss '#define MyAppPublisher "cipherfps"' '#define MyAppPublisher "Revive"'
+          Patch $iss 'ATLAS Link' 'Revive'
+
+          $ps1 = "installer/build-installer.ps1"
+          Patch $ps1 '$desiredExecutableName = "ATLAS Link.exe"' '$desiredExecutableName = "Revive.exe"'
+          Patch $ps1 '$outputBaseFilename = "ATLAS Link Setup-$version"' '$outputBaseFilename = "Revive-Setup"'
+
+          Patch "atlas_link_flutter/windows/runner/main.cpp" 'L"ATLAS Link"' 'L"Revive"'
+
+      - name: Build the launcher and the installer
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File installer/build-installer.ps1 -SkipFlutterClean -SkipBackendZips -SkipDiscordRpcBuild
+          if ($LASTEXITCODE -ne 0) { throw "build-installer.ps1 a echoue (code $LASTEXITCODE)" }
+          if (-not (Test-Path "dist/Revive-Setup.exe")) { throw "dist/Revive-Setup.exe introuvable" }
+          Get-Item "dist/Revive-Setup.exe" | Format-List Name, Length
+
+      - name: Upload Revive-Setup.exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: Revive-Setup
+          path: dist/Revive-Setup.exe
+          if-no-files-found: error
+
+      - name: Publish to a Release (optional)
+        if: ${{ inputs.tag != '' }}
+        shell: pwsh
+        run: |
+          $repo = "${{ github.repository }}"
+          gh release view "$env:TAG" --repo $repo *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload "$env:TAG" dist/Revive-Setup.exe --clobber --repo $repo
+          } else {
+            gh release create "$env:TAG" dist/Revive-Setup.exe --title "Revive $env:TAG" --notes "Installateur Windows de Revive." --repo $repo
+          }
