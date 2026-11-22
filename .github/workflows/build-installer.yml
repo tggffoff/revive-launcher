@@ -1,10 +1,12 @@
 name: Revive Setup (installateur)
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag de Release ou deposer Revive-Setup.exe (ex: v2.0.7). Laisse vide pour ne pas publier."
+        description: "Tag de Release (laisse vide pour utiliser 'latest')"
         required: false
         default: ""
 
@@ -80,14 +82,17 @@ jobs:
           path: dist/Revive-Setup.exe
           if-no-files-found: error
 
-      - name: Publish to a Release (optional)
-        if: ${{ inputs.tag != '' }}
+      - name: Publish Revive-Setup.exe to a Release
         shell: pwsh
         run: |
           $repo = "${{ github.repository }}"
-          gh release view "$env:TAG" --repo $repo *> $null
+          $tag = $env:TAG
+          if (-not $tag) { $tag = "latest" }
+          gh release view "$tag" --repo $repo *> $null
           if ($LASTEXITCODE -eq 0) {
-            gh release upload "$env:TAG" dist/Revive-Setup.exe --clobber --repo $repo
+            gh release upload "$tag" dist/Revive-Setup.exe --clobber --repo $repo
           } else {
-            gh release create "$env:TAG" dist/Revive-Setup.exe --title "Revive $env:TAG" --notes "Installateur Windows de Revive." --repo $repo
+            gh release create "$tag" dist/Revive-Setup.exe --title "Revive Setup ($tag)" --notes "Installateur Windows de Revive." --repo $repo
           }
+          if ($LASTEXITCODE -ne 0) { throw "Publication de la Release echouee" }
+          Write-Host "Lien: https://github.com/$repo/releases/download/$tag/Revive-Setup.exe"
