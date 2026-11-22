@@ -4,11 +4,9 @@
 
 The launcher uses the existing Supabase project and Discord OAuth provider. It starts a temporary loopback HTTP callback on `127.0.0.1` and uses PKCE; the Discord Gate/Tailscale authentication flow remains separate and unchanged.
 
-In Supabase Dashboard → Authentication → URL Configuration, add this redirect URL to the allow list:
+In Supabase Dashboard → Authentication → URL Configuration
 
-`http://127.0.0.1:*/auth/callback`
-
-In Supabase Dashboard → Authentication → Providers → Discord, keep the existing Discord provider configuration enabled. The provider's Discord client ID and client secret remain configured in Supabase; they are not embedded in the launcher.
+they are not embedded in the launcher.
 
 The publishable Supabase key is used by the desktop client. No `service_role` key is included. Access and refresh tokens are stored using Windows secure storage.
 
