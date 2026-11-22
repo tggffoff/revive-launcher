@@ -41,11 +41,41 @@ jobs:
       - name: Install Inno Setup
         shell: pwsh
         run: |
-          choco install innosetup -y --no-progress
-          $iscc = Get-ChildItem -Path "${env:ProgramFiles(x86)}\Inno Setup*", "$env:ProgramFiles\Inno Setup*" -Filter ISCC.exe -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $iscc) { throw "ISCC.exe introuvable apres l'installation d'Inno Setup." }
-          Write-Host "ISCC: $($iscc.FullName)"
-          $iscc.Directory.FullName >> $env:GITHUB_PATH
+          function Find-Iscc {
+            $dirs = @(
+              "${env:ProgramFiles(x86)}\Inno Setup 6",
+              "$env:ProgramFiles\Inno Setup 6",
+              "${env:ProgramFiles(x86)}\Inno Setup 7",
+              "$env:ProgramFiles\Inno Setup 7",
+              "$env:LOCALAPPDATA\Programs\Inno Setup 6",
+              "C:\ProgramData\chocolatey\lib\innosetup\tools"
+            )
+            foreach ($d in $dirs) {
+              $p = Join-Path $d "ISCC.exe"
+              if (Test-Path $p) { return $p }
+            }
+            $cmd = Get-Command iscc -ErrorAction SilentlyContinue
+            if ($cmd) { return $cmd.Source }
+            return $null
+          }
+
+          $iscc = Find-Iscc
+          if (-not $iscc) {
+            Write-Host "Inno Setup absent : installation via Chocolatey"
+            choco install innosetup -y --no-progress
+            Write-Host "Code retour choco : $LASTEXITCODE"
+            $iscc = Find-Iscc
+          }
+          if (-not $iscc) {
+            Write-Host "Chocolatey n'a pas suffi : telechargement direct"
+            Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "$env:RUNNER_TEMP\is.exe"
+            Start-Process -FilePath "$env:RUNNER_TEMP\is.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-" -Wait
+            $iscc = Find-Iscc
+          }
+          if (-not $iscc) { throw "ISCC.exe introuvable apres toutes les tentatives." }
+          Write-Host "ISCC: $iscc"
+          (Split-Path $iscc) >> $env:GITHUB_PATH
+          exit 0
 
       - name: Rebrand ATLAS Link -> Revive (installateur, nom de l'exe, titre de fenetre)
         shell: pwsh
